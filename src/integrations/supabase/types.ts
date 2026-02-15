@@ -107,6 +107,42 @@ export type Database = {
         }
         Relationships: []
       }
+      maintenance_payments: {
+        Row: {
+          amount: number
+          created_at: string
+          id: string
+          month: string
+          paid_at: string | null
+          payment_method: string | null
+          status: string
+          transaction_id: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          created_at?: string
+          id?: string
+          month: string
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_id?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          created_at?: string
+          id?: string
+          month?: string
+          paid_at?: string | null
+          payment_method?: string | null
+          status?: string
+          transaction_id?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       meeting_rsvps: {
         Row: {
           created_at: string
@@ -240,6 +276,78 @@ export type Database = {
           phone?: string | null
           updated_at?: string
           user_id?: string
+          wing?: string | null
+        }
+        Relationships: []
+      }
+      society_funds: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: string
+          created_by: string
+          description: string | null
+          id: string
+          title: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          category?: string | null
+          created_at?: string
+          created_by: string
+          description?: string | null
+          id?: string
+          title: string
+          type?: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: string
+          created_by?: string
+          description?: string | null
+          id?: string
+          title?: string
+          type?: string
+        }
+        Relationships: []
+      }
+      staff_assignments: {
+        Row: {
+          assigned_by: string
+          assignment_type: string
+          created_at: string
+          description: string | null
+          id: string
+          schedule: string | null
+          staff_user_id: string
+          status: string
+          updated_at: string
+          wing: string | null
+        }
+        Insert: {
+          assigned_by: string
+          assignment_type: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          schedule?: string | null
+          staff_user_id: string
+          status?: string
+          updated_at?: string
+          wing?: string | null
+        }
+        Update: {
+          assigned_by?: string
+          assignment_type?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          schedule?: string | null
+          staff_user_id?: string
+          status?: string
+          updated_at?: string
           wing?: string | null
         }
         Relationships: []

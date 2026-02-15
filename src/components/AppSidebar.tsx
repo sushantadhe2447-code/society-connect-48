@@ -9,6 +9,8 @@ import {
   BarChart3,
   LogOut,
   Megaphone,
+  CreditCard,
+  Wallet,
 } from "lucide-react";
 import { NavLink } from "@/components/NavLink";
 import { useAuth } from "@/hooks/useAuth";
@@ -31,6 +33,7 @@ const navigationByRole = {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "New Complaint", url: "/dashboard/complaints/new", icon: MessageSquarePlus },
     { title: "My Complaints", url: "/dashboard/complaints", icon: ListChecks },
+    { title: "Payments", url: "/dashboard/payments", icon: CreditCard },
     { title: "Events", url: "/dashboard/events", icon: Calendar },
     { title: "Directory", url: "/dashboard/directory", icon: Users },
     { title: "Announcements", url: "/dashboard/announcements", icon: Megaphone },
@@ -40,6 +43,8 @@ const navigationByRole = {
     { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
     { title: "All Complaints", url: "/dashboard/complaints", icon: ListChecks },
     { title: "Manage Staff", url: "/dashboard/staff", icon: Users },
+    { title: "Payments", url: "/dashboard/payments", icon: CreditCard },
+    { title: "Funds", url: "/dashboard/funds", icon: Wallet },
     { title: "Events", url: "/dashboard/events", icon: Calendar },
     { title: "Announcements", url: "/dashboard/announcements", icon: Megaphone },
     { title: "Directory", url: "/dashboard/directory", icon: Building2 },
@@ -67,7 +72,7 @@ export function AppSidebar() {
           <Building2 className="w-5 h-5 text-primary-foreground" />
         </div>
         {!collapsed && (
-          <span className="font-heading font-bold text-lg text-sidebar-primary-foreground">SocietyHub</span>
+          <span className="font-heading font-bold text-lg text-sidebar-primary-foreground">Town Care</span>
         )}
       </div>
 

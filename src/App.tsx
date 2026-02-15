@@ -15,6 +15,9 @@ import Directory from "./pages/Directory";
 import Notifications from "./pages/Notifications";
 import Announcements from "./pages/Announcements";
 import Analytics from "./pages/Analytics";
+import ManageStaff from "./pages/ManageStaff";
+import Payments from "./pages/Payments";
+import Funds from "./pages/Funds";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +41,9 @@ const App = () => (
               <Route path="notifications" element={<Notifications />} />
               <Route path="announcements" element={<Announcements />} />
               <Route path="analytics" element={<Analytics />} />
+              <Route path="staff" element={<ManageStaff />} />
+              <Route path="payments" element={<Payments />} />
+              <Route path="funds" element={<Funds />} />
             </Route>
             <Route path="*" element={<NotFound />} />
           </Routes>
