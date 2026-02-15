@@ -77,7 +77,7 @@ export default function AuthPage() {
             <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-elevated">
               <Building2 className="w-7 h-7 text-primary-foreground" />
             </div>
-            <h1 className="text-3xl font-bold font-heading text-primary-foreground">SocietyHub</h1>
+            <h1 className="text-3xl font-bold font-heading text-primary-foreground">Town Care</h1>
           </div>
           <p className="text-primary-foreground/70 font-body">Society Problems Management System</p>
         </div>

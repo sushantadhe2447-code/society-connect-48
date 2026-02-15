@@ -4,7 +4,12 @@ import { useAuth } from "@/hooks/useAuth";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { Bell, Check, AlertTriangle, Info, CheckCircle } from "lucide-react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Bell, Check, AlertTriangle, Info, CheckCircle, Send, Plus } from "lucide-react";
 import { toast } from "sonner";
 
 const typeIcons: Record<string, any> = {
@@ -15,8 +20,11 @@ const typeIcons: Record<string, any> = {
 };
 
 export default function NotificationsPage() {
-  const { user } = useAuth();
+  const { user, role } = useAuth();
   const [notifications, setNotifications] = useState<any[]>([]);
+  const [residents, setResidents] = useState<any[]>([]);
+  const [showSend, setShowSend] = useState(false);
+  const [sendForm, setSendForm] = useState({ title: "", message: "", type: "info", target: "all" });
 
   const fetchNotifications = async () => {
     if (!user) return;
@@ -24,7 +32,15 @@ export default function NotificationsPage() {
     if (data) setNotifications(data);
   };
 
-  useEffect(() => { fetchNotifications(); }, [user]);
+  const fetchResidents = async () => {
+    if (role !== "admin" && role !== "maintenance_staff") return;
+    const { data: roles } = await supabase.from("user_roles").select("user_id").eq("role", "resident");
+    if (!roles?.length) return;
+    const { data: profiles } = await supabase.from("profiles").select("user_id, full_name, wing, flat_number").in("user_id", roles.map((r) => r.user_id));
+    if (profiles) setResidents(profiles);
+  };
+
+  useEffect(() => { fetchNotifications(); fetchResidents(); }, [user, role]);
 
   const markAsRead = async (id: string) => {
     await supabase.from("notifications").update({ is_read: true }).eq("id", id);
@@ -38,13 +54,89 @@ export default function NotificationsPage() {
     fetchNotifications();
   };
 
+  const handleSendNotification = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!user) return;
+
+    let targetUsers: string[] = [];
+    if (sendForm.target === "all") {
+      targetUsers = residents.map((r) => r.user_id);
+    } else {
+      targetUsers = [sendForm.target];
+    }
+
+    if (targetUsers.length === 0) {
+      toast.error("No recipients found");
+      return;
+    }
+
+    const notifications = targetUsers.map((uid) => ({
+      user_id: uid,
+      title: sendForm.title,
+      message: sendForm.message,
+      type: sendForm.type,
+    }));
+
+    const { error } = await supabase.from("notifications").insert(notifications);
+    if (error) toast.error("Failed to send notification");
+    else {
+      toast.success(`Notification sent to ${targetUsers.length} user(s)`);
+      setShowSend(false);
+      setSendForm({ title: "", message: "", type: "info", target: "all" });
+    }
+  };
+
+  const canSend = role === "admin" || role === "maintenance_staff";
+
   return (
     <div className="space-y-4 animate-fade-in">
       <div className="flex items-center justify-between">
         <h1 className="text-2xl font-heading font-bold">Notifications</h1>
-        <Button variant="outline" size="sm" onClick={markAllRead}>
-          <Check className="w-4 h-4 mr-1" /> Mark all read
-        </Button>
+        <div className="flex gap-2">
+          {canSend && (
+            <Dialog open={showSend} onOpenChange={setShowSend}>
+              <DialogTrigger asChild>
+                <Button className="gradient-primary text-primary-foreground"><Send className="w-4 h-4 mr-2" /> Send Notification</Button>
+              </DialogTrigger>
+              <DialogContent>
+                <DialogHeader><DialogTitle>Send Notification</DialogTitle></DialogHeader>
+                <form onSubmit={handleSendNotification} className="space-y-4 py-2">
+                  <div className="space-y-2">
+                    <Label>Recipient</Label>
+                    <Select value={sendForm.target} onValueChange={(v) => setSendForm({ ...sendForm, target: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="all">All Residents</SelectItem>
+                        {residents.map((r) => (
+                          <SelectItem key={r.user_id} value={r.user_id}>
+                            {r.full_name} {r.wing ? `(Wing ${r.wing}, Flat ${r.flat_number})` : ""}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label>Type</Label>
+                    <Select value={sendForm.type} onValueChange={(v) => setSendForm({ ...sendForm, type: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="info">Info</SelectItem>
+                        <SelectItem value="warning">Warning</SelectItem>
+                        <SelectItem value="success">Success</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2"><Label>Title</Label><Input value={sendForm.title} onChange={(e) => setSendForm({ ...sendForm, title: e.target.value })} required /></div>
+                  <div className="space-y-2"><Label>Message</Label><Textarea value={sendForm.message} onChange={(e) => setSendForm({ ...sendForm, message: e.target.value })} required /></div>
+                  <Button type="submit" className="w-full gradient-primary text-primary-foreground">Send Notification</Button>
+                </form>
+              </DialogContent>
+            </Dialog>
+          )}
+          <Button variant="outline" size="sm" onClick={markAllRead}>
+            <Check className="w-4 h-4 mr-1" /> Mark all read
+          </Button>
+        </div>
       </div>
 
       <div className="space-y-2">
