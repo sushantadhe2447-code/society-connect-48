@@ -30,7 +30,7 @@ export default function NewComplaint() {
     if (!user) return;
     setLoading(true);
 
-    const { error } = await supabase.from("complaints").insert({
+    const { data: complaint, error } = await supabase.from("complaints").insert({
       resident_id: user.id,
       title: form.title,
       description: form.description,
@@ -38,12 +38,24 @@ export default function NewComplaint() {
       priority: form.priority as any,
       wing: profile?.wing,
       flat_number: profile?.flat_number,
-      complaint_number: "TEMP", // Will be overwritten by trigger
-    });
+      complaint_number: "TEMP",
+    }).select().single();
 
     if (error) {
       toast.error("Failed to submit complaint: " + error.message);
     } else {
+      // Notify all admins about new complaint
+      const { data: adminRoles } = await supabase.from("user_roles").select("user_id").eq("role", "admin");
+      if (adminRoles?.length) {
+        const notifs = adminRoles.map((r) => ({
+          user_id: r.user_id,
+          title: "New Complaint Raised",
+          message: `${profile?.full_name || "A resident"} raised: "${form.title}" (${form.category})`,
+          type: "complaint",
+          related_id: complaint?.id,
+        }));
+        await supabase.from("notifications").insert(notifs);
+      }
       toast.success("Complaint submitted successfully!");
       navigate("/dashboard/complaints");
     }
@@ -52,7 +64,7 @@ export default function NewComplaint() {
 
   return (
     <div className="max-w-2xl mx-auto animate-fade-in">
-      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4">
+      <Button variant="ghost" onClick={() => navigate(-1)} className="mb-4 hover:bg-secondary transition-colors">
         <ArrowLeft className="w-4 h-4 mr-2" /> Back
       </Button>
 
@@ -103,8 +115,13 @@ export default function NewComplaint() {
               </div>
             )}
 
-            <Button type="submit" className="w-full gradient-primary text-primary-foreground" disabled={loading}>
-              {loading ? "Submitting..." : "Submit Complaint"}
+            <Button type="submit" className="w-full gradient-primary text-primary-foreground hover:opacity-90 transition-opacity" disabled={loading}>
+              {loading ? (
+                <span className="flex items-center gap-2">
+                  <span className="w-4 h-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin" />
+                  Submitting...
+                </span>
+              ) : "Submit Complaint"}
             </Button>
           </form>
         </CardContent>
