@@ -7,8 +7,19 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { toast } from "sonner";
-import { Search, Star } from "lucide-react";
+import { Search, Star, FileText, Trash2 } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 
 const statusColors: Record<string, string> = {
@@ -36,14 +47,17 @@ export default function ComplaintsList() {
   const [selectedComplaint, setSelectedComplaint] = useState<any>(null);
   const [rating, setRating] = useState(0);
   const [ratingComment, setRatingComment] = useState("");
+  const [loading, setLoading] = useState(true);
 
   const fetchComplaints = async () => {
     if (!user) return;
+    setLoading(true);
     let query = supabase.from("complaints").select("*").order("created_at", { ascending: false });
     if (role === "resident") query = query.eq("resident_id", user.id);
     if (role === "maintenance_staff") query = query.eq("assigned_to", user.id);
     const { data } = await query;
     if (data) setComplaints(data);
+    setLoading(false);
   };
 
   const fetchStaff = async () => {
@@ -66,6 +80,12 @@ export default function ComplaintsList() {
     else { toast.success("Assigned successfully"); fetchComplaints(); }
   };
 
+  const deleteComplaint = async (id: string) => {
+    const { error } = await supabase.from("complaints").delete().eq("id", id);
+    if (error) toast.error("Failed to delete complaint");
+    else { toast.success("Complaint deleted"); fetchComplaints(); }
+  };
+
   const closeComplaint = async (complaintId: string) => {
     const { error } = await supabase.from("complaints").update({
       status: "closed" as any,
@@ -83,6 +103,17 @@ export default function ComplaintsList() {
     if (search && !c.title.toLowerCase().includes(search.toLowerCase()) && !c.complaint_number.toLowerCase().includes(search.toLowerCase())) return false;
     return true;
   });
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="flex flex-col items-center gap-3">
+          <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
+          <p className="text-sm text-muted-foreground">Loading complaints...</p>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4 animate-fade-in">
@@ -133,7 +164,7 @@ export default function ComplaintsList() {
                   {c.wing && <p className="text-xs text-muted-foreground">Wing {c.wing}, Flat {c.flat_number}</p>}
                   <p className="text-xs text-muted-foreground">{new Date(c.created_at).toLocaleDateString()}</p>
                 </div>
-                <div className="flex items-center gap-2 flex-shrink-0">
+                <div className="flex items-center gap-2 flex-shrink-0 flex-wrap">
                   <Badge className={statusColors[c.status]}>{c.status.replace("_", " ")}</Badge>
 
                   {role === "admin" && c.status === "submitted" && staff.length > 0 && (
@@ -147,10 +178,30 @@ export default function ComplaintsList() {
                     </Select>
                   )}
 
+                  {role === "admin" && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button size="sm" variant="ghost" className="text-destructive hover:bg-destructive/10 transition-colors">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete Complaint</AlertDialogTitle>
+                          <AlertDialogDescription>Are you sure you want to delete "{c.title}" ({c.complaint_number})? This action cannot be undone.</AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => deleteComplaint(c.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">Delete</AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+
                   {role === "resident" && c.status === "resolved" && (
                     <Dialog>
                       <DialogTrigger asChild>
-                        <Button size="sm" variant="outline" onClick={() => { setSelectedComplaint(c); setRating(0); setRatingComment(""); }}>
+                        <Button size="sm" variant="outline" className="hover:bg-secondary transition-colors" onClick={() => { setSelectedComplaint(c); setRating(0); setRatingComment(""); }}>
                           <Star className="w-4 h-4 mr-1" /> Rate & Close
                         </Button>
                       </DialogTrigger>
@@ -159,13 +210,13 @@ export default function ComplaintsList() {
                         <div className="space-y-4 py-4">
                           <div className="flex gap-1 justify-center">
                             {[1, 2, 3, 4, 5].map((star) => (
-                              <button key={star} onClick={() => setRating(star)}>
+                              <button key={star} onClick={() => setRating(star)} className="hover:scale-110 transition-transform">
                                 <Star className={`w-8 h-8 ${star <= rating ? "fill-warning text-warning" : "text-muted-foreground/30"}`} />
                               </button>
                             ))}
                           </div>
                           <Textarea placeholder="Optional feedback..." value={ratingComment} onChange={(e) => setRatingComment(e.target.value)} />
-                          <Button className="w-full gradient-primary text-primary-foreground" onClick={() => closeComplaint(c.id)} disabled={rating === 0}>
+                          <Button className="w-full gradient-primary text-primary-foreground hover:opacity-90 transition-opacity" onClick={() => closeComplaint(c.id)} disabled={rating === 0}>
                             Submit Rating & Close
                           </Button>
                         </div>
@@ -187,7 +238,13 @@ export default function ComplaintsList() {
         ))}
         {filtered.length === 0 && (
           <Card className="shadow-card">
-            <CardContent className="p-8 text-center text-muted-foreground">No complaints found</CardContent>
+            <CardContent className="p-12 text-center">
+              <FileText className="w-10 h-10 text-muted-foreground/30 mx-auto mb-3" />
+              <p className="text-muted-foreground font-medium">No complaints yet</p>
+              <p className="text-sm text-muted-foreground/60 mt-1">
+                {role === "resident" ? "You haven't raised any complaints. Use 'New Complaint' to get started." : "No complaints match the current filters."}
+              </p>
+            </CardContent>
           </Card>
         )}
       </div>
