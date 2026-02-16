@@ -49,8 +49,13 @@ export function StaffDashboard() {
   return (
     <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-heading font-bold">Welcome, {profile?.full_name || "Staff"}</h1>
-        <p className="text-muted-foreground">Your assigned maintenance tasks</p>
+        <div className="flex items-center gap-2 mb-1">
+          <Wrench className="w-6 h-6 text-primary" />
+          <h1 className="text-2xl font-heading font-bold">Welcome to TownCare Residency Society Portal</h1>
+        </div>
+        <p className="text-muted-foreground">
+          Hello, <span className="font-medium text-foreground">{profile?.full_name || "Staff"}</span> · Your assigned maintenance tasks
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
