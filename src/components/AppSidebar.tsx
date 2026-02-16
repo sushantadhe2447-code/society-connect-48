@@ -72,7 +72,7 @@ export function AppSidebar() {
           <Building2 className="w-5 h-5 text-primary-foreground" />
         </div>
         {!collapsed && (
-          <span className="font-heading font-bold text-lg text-sidebar-primary-foreground">GreenView</span>
+          <span className="font-heading font-bold text-lg text-sidebar-primary-foreground">TownCare</span>
         )}
       </div>
 

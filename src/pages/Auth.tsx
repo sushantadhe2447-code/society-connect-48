@@ -90,7 +90,7 @@ export default function AuthPage() {
       <div className="hidden lg:flex lg:w-1/2 relative overflow-hidden">
         <img
           src={societyBanner}
-          alt="GreenView Residency"
+          alt="TownCare Residency"
           className="absolute inset-0 w-full h-full object-cover"
         />
         <div className="absolute inset-0 bg-gradient-to-t from-[hsl(210,30%,10%)] via-[hsl(210,30%,10%,0.6)] to-transparent" />
@@ -99,10 +99,10 @@ export default function AuthPage() {
             <div className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center shadow-elevated">
               <Building2 className="w-7 h-7" />
             </div>
-            <span className="text-2xl font-bold font-heading">GreenView Residency</span>
+            <span className="text-2xl font-bold font-heading">TownCare Residency</span>
           </div>
           <h2 className="text-4xl font-bold font-heading leading-tight mb-3">
-            GreenView Residency<br />Society Portal
+            TownCare Residency<br />Society Portal
           </h2>
           <p className="text-lg text-primary-foreground/70 font-body mb-2">Smart Society Management System</p>
           <div className="flex items-center gap-2 text-primary-foreground/60 text-sm">
@@ -121,7 +121,7 @@ export default function AuthPage() {
               <div className="w-11 h-11 rounded-xl gradient-primary flex items-center justify-center shadow-elevated">
                 <Building2 className="w-6 h-6 text-primary-foreground" />
               </div>
-              <h1 className="text-2xl font-bold font-heading text-primary-foreground">GreenView Residency</h1>
+              <h1 className="text-2xl font-bold font-heading text-primary-foreground">TownCare Residency</h1>
             </div>
             <p className="text-primary-foreground/70 text-sm font-body">Smart Society Management System</p>
           </div>
@@ -132,7 +132,7 @@ export default function AuthPage() {
               <div className="w-10 h-10 rounded-xl gradient-primary flex items-center justify-center">
                 <Building2 className="w-5 h-5 text-primary-foreground" />
               </div>
-              <h1 className="text-xl font-bold font-heading text-foreground">GreenView Residency</h1>
+              <h1 className="text-xl font-bold font-heading text-foreground">TownCare Residency</h1>
             </div>
             <p className="text-muted-foreground text-sm">Sign in to access your society portal</p>
           </div>
@@ -281,7 +281,7 @@ export default function AuthPage() {
           </Card>
 
           <p className="text-center text-xs text-muted-foreground lg:text-muted-foreground mt-6">
-            © 2026 GreenView Residency, Pune. All rights reserved.
+            © 2026 TownCare Residency, Pune. All rights reserved.
           </p>
         </div>
       </div>
