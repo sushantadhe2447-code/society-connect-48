@@ -370,6 +370,42 @@ export type Database = {
         }
         Relationships: []
       }
+      visitor_entries: {
+        Row: {
+          check_in: string
+          check_out: string | null
+          created_at: string
+          id: string
+          purpose: string | null
+          resident_flat: string | null
+          resident_name: string | null
+          visitor_name: string
+          visitor_type: string
+        }
+        Insert: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          purpose?: string | null
+          resident_flat?: string | null
+          resident_name?: string | null
+          visitor_name: string
+          visitor_type?: string
+        }
+        Update: {
+          check_in?: string
+          check_out?: string | null
+          created_at?: string
+          id?: string
+          purpose?: string | null
+          resident_flat?: string | null
+          resident_name?: string | null
+          visitor_name?: string
+          visitor_type?: string
+        }
+        Relationships: []
+      }
       wings: {
         Row: {
           created_at: string
